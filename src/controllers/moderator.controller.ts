@@ -9,6 +9,16 @@ const validStatuses = [
   "DISMISSED",
 ] as const;
 
+const allowedTransitions: Record<
+  (typeof validStatuses)[number],
+  readonly (typeof validStatuses)[number][]
+> = {
+  SUBMITTED: ["UNDER_REVIEW"],
+  UNDER_REVIEW: ["RESOLVED", "DISMISSED"],
+  RESOLVED: [],
+  DISMISSED: [],
+};
+
 const validCategories = [
   "SECURITY",
   "HARASSMENT",
@@ -214,8 +224,18 @@ export async function updateReportStatus(
       });
     }
 
+    const currentStatus = existingReport.status;
+    const nextStatus = status as (typeof validStatuses)[number];
+
+    if (!allowedTransitions[currentStatus].includes(nextStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status transition from ${currentStatus} to ${nextStatus}`,
+      });
+    }
+
     const closedAt =
-      status === "RESOLVED" || status === "DISMISSED"
+      nextStatus === "RESOLVED" || nextStatus === "DISMISSED"
         ? new Date()
         : null;
 
@@ -225,7 +245,7 @@ export async function updateReportStatus(
           id: reportId,
         },
         data: {
-          status: status as (typeof validStatuses)[number],
+          status: nextStatus,
           closedAt,
         },
         select: {
