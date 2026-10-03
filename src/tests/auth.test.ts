@@ -33,7 +33,7 @@ describe("Moderator authentication", () => {
       .post("/api/auth/login")
       .send({
         email: "moderator@whistledrop.local",
-        password: "REMOVED_SECRET",
+        password: process.env.MODERATOR_PASSWORD || "TestModeratorPassword",
       });
 
     expect(response.status).toBe(200);

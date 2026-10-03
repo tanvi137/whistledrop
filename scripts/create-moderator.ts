@@ -3,9 +3,12 @@ import { prisma } from "../src/config/prisma.js";
 import { hashPassword } from "../src/utils/auth.js";
 
 const email = "moderator@whistledrop.local";
-const password = "REMOVED_SECRET";
-
 async function main() {
+  const password = process.env.MODERATOR_PASSWORD;
+
+  if (!password) {
+    throw new Error("MODERATOR_PASSWORD environment variable is required");
+  }
   const passwordHash = await hashPassword(password);
 
   const moderator = await prisma.moderator.upsert({

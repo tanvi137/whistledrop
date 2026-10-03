@@ -8,7 +8,7 @@ async function getModeratorToken(): Promise<string> {
     .post("/api/auth/login")
     .send({
       email: "moderator@whistledrop.local",
-      password: "REMOVED_SECRET",
+      password: process.env.MODERATOR_PASSWORD || "TestModeratorPassword",
     });
 
   return response.body.data.token;

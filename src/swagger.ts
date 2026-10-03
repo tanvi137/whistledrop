@@ -86,7 +86,7 @@ const swaggerDefinition = {
           password: {
             type: "string",
             format: "password",
-            example: "REMOVED_SECRET",
+            example: "YourModeratorPassword",
           },
         },
       },
