@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ReportCategory {
+  SECURITY
+  HARASSMENT
+  CORRUPTION
+  TECHNICAL
+  OTHER
+}
+
+enum ReportStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+model Report {
+  id             String         @id @default(cuid())
+  caseCodeHash   String         @unique
+  category       ReportCategory
+  description    String
+  evidenceUrl    String?
+  status         ReportStatus   @default(SUBMITTED)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  closedAt       DateTime?
+
+  statusUpdates  StatusUpdate[]
+
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model StatusUpdate {
+  id          String   @id @default(cuid())
+  reportId    String
+  message     String
+  createdAt   DateTime @default(now())
+
+  report      Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+}
+
+model Moderator {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  @@index([email])
+}
