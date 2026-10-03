@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger.js";
 import reportRoutes from "./routes/report.routes.js";
 import trackingRoutes from "./routes/tracking.routes.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -10,6 +12,7 @@ import moderatorRoutes from "./routes/moderator.routes.js";
 const app = express();
 
 app.use(helmet());
+
 app.use(cors());
 
 app.use(
@@ -23,12 +26,18 @@ app.use(
 
 app.use(express.json({ limit: "1mb" }));
 
+app.get("/", (_req, res) => {
+  res.redirect("/api-docs");
+});
+
 app.get("/health", (_req, res) => {
   res.status(200).json({
     success: true,
     message: "WhistleDrop API is running",
   });
 });
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/reports", reportRoutes);
 app.use("/api/tracking", trackingRoutes);
